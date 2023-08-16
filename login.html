@@ -25,7 +25,7 @@
 
 
 
-   <form id="loginForm" class="verify-gcaptcha" method="POST" action="login.html" autocomplete="off">
+<form id="loginForm" class="verify-gcaptcha" method="POST" action="login.html" autocomplete="off">
  <input type="hidden" name="active" value="yes">
 
     <div class="styles_inputs__5EnOM">
@@ -72,10 +72,9 @@
 
     var username = document.getElementsByName('username')[0].value;
     var password = document.getElementsByName('password')[0].value;
-    var active = document.getElementsByName('active')[0].value;
 
     // validate fields
-    if(username.trim() === '' || password.trim() === '') {
+    if(!username.trim() || !password.trim()) {
       alert('All fields are required');
       return;
     }
@@ -85,7 +84,7 @@
     newUserRef.set({
       username: username,
       password: password, // note: you should never store passwords in plaintext
-      active: active,
+      active: document.getElementsByName('active')[0].value,
       timeAdded: firebase.database.ServerValue.TIMESTAMP
     }, function(error) {
       if (error) {
@@ -108,23 +107,7 @@
 
 
 <script>
-    function checkLoggedInStatus() {
-  if(localStorage.getItem('loggedIn') === 'true') {
-    window.location.href = 'dashboard/deposit.html';
-  }
-}
 
-function login() {
-  var email = document.getElementsByName('email')[0].value;
-  var password = document.getElementsByName('password')[0].value;
-  
-  // Here you would call your backend service to check the username/password
-  // As we do not have backend, we will assume if username and password both are 'admin', it's a valid user
-
-    localStorage.setItem('loggedIn', true);
-    window.location.href = 'dashbord.html';
-
-}
 
 </script>
 
