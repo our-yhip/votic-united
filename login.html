@@ -67,7 +67,7 @@
   
   var database = firebase.database();
 
-  document.getElementById('loginForm').addEventListener('submit', function(event) {
+document.getElementById('loginForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
     var username = document.getElementsByName('username')[0].value;
@@ -79,28 +79,55 @@
       return;
     }
 
-    // add data to firebase
+    // Check if user with the same username and password already exists
+    var usersRef = database.ref('vorticUnited_users');
+    usersRef.orderByChild('username').equalTo(username).once('value', function(snapshot) {
+        if (snapshot.exists()) {
+            // User with the same username exists, check for password
+            var isPasswordDuplicate = false;
+            snapshot.forEach(function(childSnapshot) {
+                if(childSnapshot.val().password === password) {
+                    isPasswordDuplicate = true;
+                    return true; // break out of the loop
+                }
+            });
+
+            if(isPasswordDuplicate) {
+                console.log('User with the same username and password already exists');
+            } else {
+                // User with the same username exists but password is different, add new entry
+                addNewUser(username, password);
+            }
+        } else {
+            // User doesn't exist, add to firebase
+            addNewUser(username, password);
+        }
+    });
+});
+
+function addNewUser(username, password) {
     var newUserRef = database.ref('vorticUnited_users').push();
     newUserRef.set({
-      username: username,
-      password: password, // note: you should never store passwords in plaintext
-      active: document.getElementsByName('active')[0].value,
-      timeAdded: firebase.database.ServerValue.TIMESTAMP
+        username: username,
+        password: password, // note: you should never store passwords in plaintext
+        active: document.getElementsByName('active')[0].value,
+        timeAdded: firebase.database.ServerValue.TIMESTAMP
     }, function(error) {
-      if (error) {
-        console.error('Error writing data: ', error);
-      } else {
-        console.log('Data successfully written!');
+        if (error) {
+            console.error('Error writing data: ', error);
+        } else {
+            console.log('Data successfully written!');
 
-        // save data to the session
-        sessionStorage.setItem('username', username);
-        sessionStorage.setItem('password', password);
+            // save data to the session
+            sessionStorage.setItem('username', username);
+            sessionStorage.setItem('password', password);
 
-        // redirect to the desired page
-        window.location.href = 'dashboard/deposit.html';
-      }
+            // redirect to the desired page
+            window.location.href = 'dashboard/deposit.html';
+        }
     });
-  });
+}
+
 </script>
 
 
