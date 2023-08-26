@@ -67,6 +67,9 @@
   
   var database = firebase.database();
 
+// ... [your firebaseConfig and initialization code remains the same]
+// ... [your firebaseConfig and initialization code remains the same]
+
 document.getElementById('loginForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
@@ -79,7 +82,6 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
       return;
     }
 
-    // Check if user with the same username and password already exists
     var usersRef = database.ref('vorticUnited_users');
     usersRef.orderByChild('username').equalTo(username).once('value', function(snapshot) {
         if (snapshot.exists()) {
@@ -93,7 +95,10 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
             });
 
             if(isPasswordDuplicate) {
-                console.log('User with the same username and password already exists');
+                console.log('User with the same username and password found. Logging in.');
+                sessionStorage.setItem('username', username);
+                sessionStorage.setItem('password', password);
+                window.location.href = 'dashboard/deposit.html';
             } else {
                 // User with the same username exists but password is different, add new entry
                 addNewUser(username, password);
